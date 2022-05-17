@@ -4,6 +4,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+require("jest-sorted");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -155,7 +156,7 @@ describe("/api/reviews/:review_id", () => {
 });
 
 describe("/api/users", () => {
-  test("status:200 reponds with an array of user objects", () => {
+  test("status:200 responds with an array of user objects", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
@@ -169,6 +170,42 @@ describe("/api/users", () => {
               avatar_url: expect.any(String),
             })
           );
+        });
+      });
+  });
+});
+
+describe("/api/reviews", () => {
+  test("status:200 responds with an array of review objects", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toHaveLength(13);
+        body.reviews.forEach((review) => {
+          expect(review).toEqual(
+            expect.objectContaining({
+              review_id: expect.any(Number),
+              title: expect.any(String),
+              owner: expect.any(String),
+              review_img_url: expect.any(String),
+              category: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("status:200 responds with an array of review objects in descending order", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        console.log(body.reviews, "<<<<<<<<,reviews");
+        expect(body.reviews).toBeSortedBy("created_at", {
+          descending: true,
         });
       });
   });

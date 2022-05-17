@@ -4,6 +4,7 @@ const { getCategories } = require("./controllers/categories.controller");
 const {
   getReviewById,
   patchReviewById,
+  getAllReviews,
 } = require("./controllers/reviews.controller");
 const {
   handle500ServerError,
@@ -20,6 +21,8 @@ app.get("/api/reviews/:review_id", getReviewById);
 app.patch("/api/reviews/:review_id", patchReviewById);
 
 app.get("/api/users", getUsers);
+
+app.get("/api/reviews", getAllReviews);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "path not found" });
