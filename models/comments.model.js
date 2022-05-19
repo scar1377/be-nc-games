@@ -39,3 +39,36 @@ exports.fetchCommentsByReviewId = (id) => {
   //       });
   //   }
 };
+
+exports.addCommentByReviewId = (id, newComment) => {
+  const { username, body } = newComment;
+
+  if (username && body) {
+    if (typeof username !== "string" || typeof body !== "string") {
+      return Promise.reject({
+        status: 400,
+        msg: "invalid value type",
+      });
+    }
+  }
+
+  const queryStr = `
+    INSERT INTO comments (
+        review_id,
+        author, 
+        body
+        )
+        VALUES ($1,$2,$3)
+        RETURNING *
+      `;
+
+  return db
+    .query(queryStr, [id, username, body])
+
+    .then(({ rows }) => {
+      return rows[0];
+    });
+  //   return db.query(queryStr, [id, username, body]).then(({rows})=> {
+  //       return rows[0]
+  //   })
+};

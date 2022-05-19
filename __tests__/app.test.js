@@ -4,6 +4,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const req = require("express/lib/request");
 require("jest-sorted");
 
 beforeEach(() => seed(testData));
@@ -155,7 +156,7 @@ describe("/api/reviews/:review_id", () => {
   });
 });
 
-describe("/api/users", () => {
+describe("GET /api/users", () => {
   test("status:200 responds with an array of user objects", () => {
     return request(app)
       .get("/api/users")
@@ -175,7 +176,7 @@ describe("/api/users", () => {
   });
 });
 
-describe("/api/reviews", () => {
+describe("GET /api/reviews", () => {
   test("status:200 responds with an array of review objects", () => {
     return request(app)
       .get("/api/reviews")
@@ -247,6 +248,65 @@ describe("GET /api/reviews/:review_id/comments", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.msg).toBe("not a valid id input");
+      });
+  });
+});
+
+describe("POST /api/reviews/:review_id/comments", () => {
+  test("status:200 responds with an array of topic objects, each of which should have 'slug' and 'description' properties", () => {
+    const newComment = { username: "bainesface", body: "Testing comments" };
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send(newComment)
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toEqual({
+          comment_id: expect.any(Number),
+          body: "Testing comments",
+          votes: 0,
+          author: "bainesface",
+          review_id: 2,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("status:400 responds with an error message of missing required fields", () => {
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("missing required fields");
+      });
+  });
+  test("status:400 responds with an error message of invalid value type", () => {
+    const newComment = { username: 1, body: 11 };
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send(newComment)
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("invalid value type");
+      });
+  });
+  test("status:404 responds with an error message of user not found", () => {
+    const newComment = { username: "7731racs", body: "wrong username" };
+    return request(app)
+      .post("/api/reviews/2/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("user does not exist");
+      });
+  });
+  test("status:404 responds with an error message of review not found", () => {
+    const newComment = { username: "bainesface", body: "Testing comments" };
+    return request(app)
+      .post("/api/reviews/9999/comments")
+      .send(newComment)
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("review does not exist");
       });
   });
 });
