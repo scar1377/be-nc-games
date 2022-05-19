@@ -40,13 +40,8 @@ exports.fetchReviewById = (id) => {
 
 exports.updateReviewById = (id, updatedVote) => {
   const { inc_votes } = updatedVote;
-  if (!inc_votes) {
-    return Promise.reject({
-      status: 400,
-      msg: "missing required fields",
-    });
-  }
-  if (typeof inc_votes !== "number") {
+
+  if (inc_votes && typeof inc_votes !== "number") {
     return Promise.reject({
       status: 400,
       msg: "incorrect value type",
