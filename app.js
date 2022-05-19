@@ -12,6 +12,7 @@ const {
   handlePsqlError,
 } = require("./controllers/error.controller");
 const { getUsers } = require("./controllers/users.controller");
+const { getCommentsByReviewId } = require("./controllers/comments.controller");
 
 app.use(express.json());
 
@@ -23,6 +24,7 @@ app.patch("/api/reviews/:review_id", patchReviewById);
 app.get("/api/users", getUsers);
 
 app.get("/api/reviews", getAllReviews);
+app.get("/api/reviews/:review_id/comments", getCommentsByReviewId);
 
 app.all("/*", (req, res) => {
   res.status(404).send({ msg: "path not found" });

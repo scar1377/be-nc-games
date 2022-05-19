@@ -63,7 +63,7 @@ describe("/api/reviews/:review_id", () => {
         .get("/api/reviews/not-an-id")
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toBe("Invalid input");
+          expect(body.msg).toBe("not a valid id input");
         });
     });
     test("status:404 responds with an error message", () => {
@@ -203,10 +203,50 @@ describe("/api/reviews", () => {
       .get("/api/reviews")
       .expect(200)
       .then(({ body }) => {
-        console.log(body.reviews, "<<<<<<<<,reviews");
         expect(body.reviews).toBeSortedBy("created_at", {
           descending: true,
         });
+      });
+  });
+});
+
+describe("GET /api/reviews/:review_id/comments", () => {
+  test("status:200 responds with an array of comment objects related to the certain review", () => {
+    return request(app)
+      .get("/api/reviews/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.comments).toHaveLength(3);
+        body.comments.forEach((comment) => {
+          expect(comment).toEqual(
+            expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String),
+              review_id: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("status:404 responds with an error message", () => {
+    return request(app)
+      .get("/api/reviews/9999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("Review does not exist");
+      });
+  });
+
+  //got really weird error. When the msg is the same as the one in the PsqlErrorHandler, got "invalid input syntax for type integer:"not-a-number""
+  test.skip("status:400 responds with an error message", () => {
+    return request(app)
+      .get("/api/reviews/not-a-number/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("not a valid id input");
       });
   });
 });

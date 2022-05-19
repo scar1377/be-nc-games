@@ -1,6 +1,6 @@
 exports.handlePsqlError = (err, req, res, next) => {
-  if (err.code) {
-    res.status(400).send({ msg: "Invalid input" });
+  if (err.code === "22P02") {
+    res.status(400).send({ msg: "not a valid id input" });
   } else {
     next(err);
   }
