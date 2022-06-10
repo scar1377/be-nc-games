@@ -1,5 +1,4 @@
 exports.handlePsqlError = (err, req, res, next) => {
-  console.log(err.code);
   if (err.code === "22P02") {
     res.status(400).send({ msg: "not a valid id input" });
   } else if (err.code === "23502") {
@@ -21,6 +20,6 @@ exports.handleCustomsError = (err, req, res, next) => {
 };
 
 exports.handle500ServerError = (err, req, res, next) => {
-  console.log(err, "<<<<<<<<<<<<in 500");
+  // console.log(err);
   res.status(500).send({ msg: "Internal server error!!!!!" });
 };

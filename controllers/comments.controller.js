@@ -6,7 +6,10 @@ const {
 
 exports.getCommentsByReviewId = (req, res, next) => {
   const { review_id } = req.params;
-  fetchCommentsByReviewId(review_id)
+  checkExists("reviews", "review_id", review_id, "Review does not exist")
+    .then(() => {
+      return fetchCommentsByReviewId(review_id);
+    })
     .then((comments) => {
       res.status(200).send({ comments });
     })
@@ -21,13 +24,11 @@ exports.postCommentByReviewId = (req, res, next) => {
 
   checkExists("reviews", "review_id", review_id, "review does not exist")
     .then((result) => {
-      console.log(result, "<<<<<<<<<<<<<result");
       return addCommentByReviewId(review_id, body).then((comment) => {
         res.status(201).send({ comment });
       });
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
