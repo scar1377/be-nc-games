@@ -2,6 +2,7 @@ const { checkExists } = require("../db/seeds/utils");
 const {
   fetchCommentsByReviewId,
   addCommentByReviewId,
+  dropCommentById,
 } = require("../models/comments.model");
 
 exports.getCommentsByReviewId = (req, res, next) => {
@@ -28,7 +29,14 @@ exports.postCommentByReviewId = (req, res, next) => {
         res.status(201).send({ comment });
       });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
+};
+
+exports.deleteCommentById = (req, res, next) => {
+  const { comment_id } = req.params;
+  dropCommentById(comment_id)
+    .then(() => {
+      res.status(204).end();
+    })
+    .catch(next);
 };

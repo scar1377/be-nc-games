@@ -293,7 +293,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
       });
   });
 
-  //got really weird error. When the msg is the same as the one in the PsqlErrorHandler, got "invalid input syntax for type integer:"not-a-number""
+  //got really weird error. When the msg is the same as the one in the PsqlErrorHandler, got "invalid input syntax for type integer:"not-a-number", but putting the util function into controller will solve the problem"
   test("status:400 responds with an error message", () => {
     return request(app)
       .get("/api/reviews/not-a-number/comments")
@@ -359,6 +359,20 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.msg).toBe("review does not exist");
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("DELETE status:204 responds with no content", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("status:404 responds with an error message", () => {
+    return request(app)
+      .delete("/api/comments/99999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("comment does not exist");
       });
   });
 });
