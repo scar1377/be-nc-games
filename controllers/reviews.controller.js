@@ -1,3 +1,4 @@
+const { checkExists } = require("../db/seeds/utils");
 const {
   fetchReviewById,
   updateReviewById,
@@ -24,9 +25,15 @@ exports.patchReviewById = (req, res, next) => {
 };
 
 exports.getAllReviews = (req, res, next) => {
-  fetchAllReviews()
-    .then((reviews) => {
+  const { sort_by, order, category } = req.query;
+  const promiseAllArr = [fetchAllReviews(sort_by, order, category)];
+  if (category)
+    promiseAllArr.push(
+      checkExists("categories", "slug", category, "category does not exist")
+    );
+  Promise.all(promiseAllArr)
+    .then(([reviews]) => {
       res.status(200).send({ reviews });
     })
-    .catch(console.log);
+    .catch(next);
 };

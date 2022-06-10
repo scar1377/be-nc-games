@@ -209,6 +209,58 @@ describe("GET /api/reviews", () => {
         });
       });
   });
+  test("status:200 responds with an array of review objects sorted by title and in descending order", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=title")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeSortedBy("title", {
+          descending: true,
+        });
+      });
+  });
+  test("status:200 responds with an array of review objects sorted by owner and in ascending order", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=owner&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews).toBeSortedBy("owner", {
+          descending: false,
+        });
+      });
+  });
+  test("status:200 responds with an array of review objects within sorted by owner and in ascending order", () => {
+    return request(app)
+      .get("/api/reviews?category=social deduction&sort_by=owner&order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews.length).toBe(11);
+      });
+  });
+  test("status:400 responds with an error message when pass an invalid sort_by query", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=topic&order=desc")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("invalid query input");
+      });
+  });
+  test("status:400 responds with an error message when pass an invalid order query", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=owner&order=invalidOrder")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe("invalid query input");
+      });
+  });
+  test("status:404 responds with an error message when pass an invalid category", () => {
+    return request(app)
+      .get("/api/reviews?category=cat&sort_by=owner&order=desc")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("category does not exist");
+      });
+  });
 });
 
 describe("GET /api/reviews/:review_id/comments", () => {
@@ -242,7 +294,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
   });
 
   //got really weird error. When the msg is the same as the one in the PsqlErrorHandler, got "invalid input syntax for type integer:"not-a-number""
-  test.skip("status:400 responds with an error message", () => {
+  test("status:400 responds with an error message", () => {
     return request(app)
       .get("/api/reviews/not-a-number/comments")
       .expect(400)

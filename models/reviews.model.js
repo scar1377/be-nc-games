@@ -1,21 +1,6 @@
 const res = require("express/lib/response");
 const db = require("../db/connection");
 
-const reviewQueryStr = `
-SELECT reviews.title,
-reviews.owner,
-reviews.review_id,
-reviews.category, 
-reviews.review_img_url,
-reviews.created_at,
-reviews.votes,
-COUNT (comments.comment_id) ::INT AS comment_count 
-FROM reviews
-LEFT JOIN comments
-ON reviews.review_id = comments.review_id
-GROUP BY reviews.review_id 
-ORDER BY reviews.created_at DESC
-`;
 const reviewByIdQueryStr = `
 SELECT reviews.*, 
 COUNT (comments.comment_id) ::INT AS comment_count 
@@ -63,8 +48,49 @@ exports.updateReviewById = (id, updatedVote) => {
     });
 };
 
-exports.fetchAllReviews = () => {
-  return db.query(reviewQueryStr).then(({ rows }) => {
+exports.fetchAllReviews = (
+  sort_by = "created_at",
+  order = "desc",
+  category
+) => {
+  let reviewQueryStr = `
+SELECT reviews.title,
+reviews.owner,
+reviews.review_id,
+reviews.category, 
+reviews.review_img_url,
+reviews.created_at,
+reviews.votes,
+COUNT (comments.comment_id) ::INT AS comment_count 
+FROM reviews
+LEFT JOIN comments
+ON reviews.review_id = comments.review_id
+`;
+  const sortByGreenList = [
+    "review_id",
+    "title",
+    "owner",
+    "category",
+    "created_at",
+    "votes",
+    "comment_count",
+  ];
+  const orderGreenList = ["asc", "desc"];
+  const queryParams = [];
+  if (!sortByGreenList.includes(sort_by) || !orderGreenList.includes(order)) {
+    return Promise.reject({
+      status: 400,
+      msg: "invalid query input",
+    });
+  }
+  if (category) {
+    reviewQueryStr += `WHERE reviews.category = $1 `;
+    queryParams.push(category);
+  }
+
+  reviewQueryStr += `GROUP BY reviews.review_id 
+  ORDER BY ${sort_by} ${order}`;
+  return db.query(reviewQueryStr, queryParams).then(({ rows }) => {
     return rows;
   });
 };
