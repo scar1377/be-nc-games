@@ -17,9 +17,11 @@ const {
   postCommentByReviewId,
   deleteCommentById,
 } = require("./controllers/comments.controller");
+const { getEndpoints } = require("./controllers/api.controller");
 
 app.use(express.json());
 
+app.get("/api", getEndpoints);
 app.get("/api/categories", getCategories);
 
 app.get("/api/reviews/:review_id", getReviewById);

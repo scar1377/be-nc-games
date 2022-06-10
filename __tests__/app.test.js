@@ -376,3 +376,26 @@ describe("DELETE /api/comments/:comment_id", () => {
       });
   });
 });
+
+describe("GET /api", () => {
+  test("status:200 responds with the descriptions of all the endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(Object.keys(body.endpoints)).toHaveLength(9);
+        expect(body.endpoints["GET /api"]).toEqual({
+          description:
+            "serves up a json representation of all the available endpoints of the api",
+        });
+      });
+  });
+  test("status:404 responds with an error message", () => {
+    return request(app)
+      .get("/apii")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe("path not found");
+      });
+  });
+});
