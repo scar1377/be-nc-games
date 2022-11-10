@@ -76,8 +76,9 @@ exports.addCommentByReviewId = (id, newComment) => {
 
 exports.dropCommentById = (id) => {
   return db
-    .query("DELETE FROM comments WHERE comment_id = $1;", [id])
+    .query("DELETE FROM comments WHERE comment_id = $1 RETURNING*;", [id])
     .then(({ rows, rowCount }) => {
+      console.log(rows, "<<<<<rows");
       if (rowCount === 0) {
         return Promise.reject({
           status: 404,
@@ -86,4 +87,14 @@ exports.dropCommentById = (id) => {
       }
       return rows[0];
     });
+  // console.log("<<<<<<<in model");
+  // return db
+  //   .query(
+  //     `
+  //   DELETE FROM comments WHERE comment_id = $1
+  //   RETURNING *;`[id]
+  //   )
+  //   .then(({ rows }) => {
+  //     return rows;
+  //   });
 };

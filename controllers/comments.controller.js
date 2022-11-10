@@ -34,9 +34,22 @@ exports.postCommentByReviewId = (req, res, next) => {
 
 exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
+  console.log(req.params, "<<<<<<<<<<<req.params");
   dropCommentById(comment_id)
-    .then(() => {
+    .then((response) => {
+      console.log(response);
       res.status(204).end();
     })
     .catch(next);
+
+  // const comment_id = req.params.comment_id;
+  // const promises = [dropCommentById(comment_id)];
+  // Promise.all(promises)
+  //   .then((removedComment) => {
+  //     res.status(204).send({ removedComment });
+  //   })
+  //   .catch((err) => {
+  //     console.log(err);
+  //     res.status(404).send({ msg: "comment does not exist" });
+  //   });
 };

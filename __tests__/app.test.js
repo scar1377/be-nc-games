@@ -4,7 +4,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
-const req = require("express/lib/request");
+const { convertTimestampToDate } = require("../db/seeds/utils");
 require("jest-sorted");
 
 beforeEach(() => seed(testData));
@@ -53,7 +53,9 @@ describe("/api/reviews/:review_id", () => {
               "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
             review_body: "Farmyard fun!",
             category: "euro game",
-            created_at: expect.any(String),
+            created_at: convertTimestampToDate({
+              created_at: 1610964020514,
+            }).created_at.toJSON(),
             votes: 1,
             comment_count: expect.any(Number),
           });
@@ -367,7 +369,7 @@ describe("DELETE /api/comments/:comment_id", () => {
   test("DELETE status:204 responds with no content", () => {
     return request(app).delete("/api/comments/1").expect(204);
   });
-  test("status:404 responds with an error message", () => {
+  test.only("status:404 responds with an error message", () => {
     return request(app)
       .delete("/api/comments/99999")
       .expect(404)
